@@ -61,6 +61,12 @@ struct world
   struct point v[8][8][8]; // velocities of the 512 control points
 };
 
+struct particle
+{
+    point position;
+    point velocity;
+};
+
 extern struct world jello;
 
 // computes crossproduct of three vectors, which are given as points
@@ -80,6 +86,21 @@ extern struct world jello;
   y = (x2) * (z1) - (x1) * (z2);\
   z = (x1) * (y2) - (x2) * (y1)
 
+// computes the dotproduct of two vectors, which are given as points
+// struct point vector1, vector2
+// double scalar
+#define DOTPRODUCTp(vector1, vector2, scalar)\
+  DOTPRODUCT( (vector1).x, (vector1).y, (vector1).z,\
+             (vector2).x, (vector2).y, (vector2).z,\
+              scalar )
+
+// computes the dotproduct of two vectors, which are specified by floating-point coordinates
+// double x1,y1,z1,x2,y2,z2, scalar
+// result goes into scalar
+#define DOTPRODUCT(x1,y1,z1,x2,y2,z2,scalar)\
+\
+  scalar = (x1) * (x2) + (y1) * (y2) + (z1) * (z2);\
+
 // normalizes vector dest
 // struct point dest
 // result returned in dest
@@ -93,7 +114,7 @@ extern struct world jello;
   (dest).z /= length;
 
 // Magnitude of vector dest
-#define pMag(dest)\
+#define pMAG(dest, length)\
 \
   length = sqrt((dest).x * (dest).x + (dest).y * (dest).y + (dest).z * (dest).z);\
 

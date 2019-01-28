@@ -10,6 +10,9 @@
 #include "showCube.h"
 #include "input.h"
 #include "physics.h"
+#include <iostream>
+
+using namespace std;
 
 // Camera parameters
 double Theta = pi/6;
@@ -250,8 +253,25 @@ void idle()
 
     if (pause == 0)
     {
-        // TODO: Insert code which appropriately performs
-        //       one step of the cube simulation:
+        // Get Integrator
+        string integrator = std::string(jello.integrator);
+
+        // Initialize Integrator Strings
+        string rk4 = "RK4";
+        string euler = "EULER";
+
+        // Check if Integrator is Euler
+        if(integrator.compare(euler) == 0)
+        {
+            // Peform Euler Integration
+            Euler(&jello);
+        }
+        // Check if Integrator is RK$
+        else if(integrator.compare(rk4) == 0)
+        {
+            // Perform Runge-Katta 4 Integration
+            RK4(&jello);
+        }
     }
 
     glutPostRedisplay();
