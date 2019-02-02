@@ -118,12 +118,14 @@ void display()
     gluLookAt(R * cos(Phi) * cos (Theta), R * sin(Phi) * cos (Theta), R * sin (Theta),
             0.0,0.0,0.0, 0.0,0.0,1.0);
 
+    /****************************/
+    /********* Lighting *********/
+    /****************************/
+    // You are encouraged to change lighting parameters or
+    // make improvements/modifications to the lighting model.
+    // This way, you will personalize your assignment and your
+    // assignment will stick out.
 
-    /* Lighting */
-    /* You are encouraged to change lighting parameters or make improvements/modifications
-     to the lighting model . 
-     This way, you will personalize your assignment and your assignment will stick out. 
-     */
 
     // global ambient light
     GLfloat aGa[] = { 0.0, 0.0, 0.0, 0.0 };
@@ -178,7 +180,7 @@ void display()
     GLfloat mKs[] = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat mKe[] = { 0.0, 0.0, 0.0, 1.0 };
 
-    /* set up lighting */
+    // Set up lighting
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, aGa);
     glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
     glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
@@ -188,7 +190,7 @@ void display()
     glMaterialfv(GL_FRONT, GL_DIFFUSE, mKd);
     glMaterialfv(GL_FRONT, GL_SPECULAR, mKs);
     glMaterialfv(GL_FRONT, GL_EMISSION, mKe);
-    glMaterialf(GL_FRONT, GL_SHININESS, 120);
+    glMaterialf(GL_FRONT, GL_SHININESS, 60);
 
     // macro to set up light i
 #define LIGHTSETUP(i)\

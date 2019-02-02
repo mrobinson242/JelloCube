@@ -234,7 +234,7 @@ void showBoundingBox()
 {
     int i,j;
 
-    glColor4f(0.6,0.6,0.6,0);
+    glColor4f(1.0,1.0,1.0,0);
 
     glBegin(GL_LINES);
 

@@ -61,6 +61,8 @@ struct world
   struct point v[8][8][8]; // velocities of the 512 control points
 };
 
+// Represents the Particle
+// System of a Mass Point
 struct particle
 {
     point position;
@@ -91,8 +93,8 @@ extern struct world jello;
 // double scalar
 #define DOTPRODUCTp(vector1, vector2, scalar)\
   DOTPRODUCT( (vector1).x, (vector1).y, (vector1).z,\
-             (vector2).x, (vector2).y, (vector2).z,\
-              scalar )
+              (vector2).x, (vector2).y, (vector2).z,\
+               scalar )
 
 // computes the dotproduct of two vectors, which are specified by floating-point coordinates
 // double x1,y1,z1,x2,y2,z2, scalar
@@ -134,6 +136,11 @@ extern struct world jello;
   (dest).(x) = (x);\
   (dest).(y) = (y);\
   (dest).(z) = (z);
+
+#define pPARTICLE(src1, src2, dest)\
+\
+  (dest).position = src1;\
+  (dest).velocity = src2;
 
 // sums points src1 and src2 to dest
 // struct point src1,src2,dest
