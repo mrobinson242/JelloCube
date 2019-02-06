@@ -1,9 +1,23 @@
+/*                                              */
+/*  CSCI 520 Computer Animation and Simulation  */
+/*  Assignment 1: Jello Cube                    */
+/*  Author: Matthew Robinson                    */
+/*  Student Id: 9801107811                      */
+/*                                              */
+
 // Headers
 #include "jello.h"
 #include "physics.h"
 #include <string>
 #include <iostream>
 #include <vector>
+
+// Rest Length Constants
+const double COLLISION_REST_LENGTH = 0.0;
+const double STRUCT_REST_LENGTH = (1.0/7.0);
+const double SHEAR_MAIN_REST_LENGTH = (1.0/7.0) * (sqrt(3));
+const double SHEAR_SIDE_REST_LENGTH = (1.0/7.0) * (sqrt(2));
+const double BEND_REST_LENGTH = (2.0/7.0);
 
 /**
  * calcDampForce - Calculates the Damping Force
@@ -99,31 +113,37 @@ struct point calcExternalForce(int i, int j, int k, struct world *jello)
         // Get Position of Mass Point
         point pos = jello->p[i][j][k];
 
+        // Bound X Max
         if(pos.x >= 2)
         {
             pos.x = 2;
         }
 
+        // Bound X Min
         if(pos.x <= -2)
         {
             pos.x = -2;
         }
 
+        // Bound Y Max
         if(pos.y >= 2)
         {
             pos.y = 2;
         }
 
+        // Bound Y Min
         if(pos.y <= -2)
         {
             pos.y = -2;
         }
 
+        // Bound Z Max
         if(pos.z >= 2)
         {
             pos.z = 2;
         }
 
+        // Bound Z Min
         if(pos.z <= -2)
         {
             pos.z = -2;
@@ -134,54 +154,55 @@ struct point calcExternalForce(int i, int j, int k, struct world *jello)
         double y = (pos.y + 2) * ((res-1)/4);
         double z = (pos.z + 2) * ((res-1)/4);
 
-        // Cast to Int so it can be indexed into Force Field
-        int i = round(x);
-        int j = round(y);
-        int k = round(z);
+        // Map Voxel Position to Closest Bucket
+        int xLow = floor(x);
+        int yLow = floor(y);
+        int zLow = floor(z);
 
         // Get the Eight Vertices surrounding the Force Field Cube
-        point c000 = jello->forceField[(i*res*res) + (j*res) + k];
-        point c001 = jello->forceField[(i*res*res) + (j*res) + (k+1)];
-        point c010 = jello->forceField[(i*res*res) + ((j+1)*res) + k];
-        point c100 = jello->forceField[((i+1)*res*res) + (j*res) + k];
-        point c101 = jello->forceField[((i+1)*res*res) + (j*res) + (k+1)];
-        point c110 = jello->forceField[((i+1)*res*res) + ((j+1)*res) + k];
-        point c011 = jello->forceField[(i*res*res) + ((j+1)*res) + (k+1)];
-        point c111 = jello->forceField[((i+1)*res*res) + ((j+1)*res) + (k+1)];
+        point c000 = jello->forceField[(xLow*res*res) + (yLow*res) + zLow];
+        point c001 = jello->forceField[(xLow*res*res) + (yLow*res) + (zLow+1)];
+        point c010 = jello->forceField[(xLow*res*res) + ((yLow+1)*res) + zLow];
+        point c100 = jello->forceField[((xLow+1)*res*res) + (yLow*res) + zLow];
+        point c101 = jello->forceField[((xLow+1)*res*res) + (yLow*res) + (zLow+1)];
+        point c110 = jello->forceField[((xLow+1)*res*res) + ((yLow+1)*res) + zLow];
+        point c011 = jello->forceField[(xLow*res*res) + ((yLow+1)*res) + (zLow+1)];
+        point c111 = jello->forceField[((xLow+1)*res*res) + ((yLow+1)*res) + (zLow+1)];
 
-        double tx = x - i;
-        double ty = y - j;
-        double tz = z - k;
+        // Get Convex Combination Coefficients
+        double alphaX = (x - xLow);
+        double alphaY = (y - yLow);
+        double alphaZ = (z - zLow);
 
         // Calculate External Force on X Position
-        extForce.x = ((1-tx) * (1-ty) * (1-tz) * c000.x) +
-                     ((1-tx) * (1-ty) * tz * c001.x) +
-                     ((1-tx) * ty * (1-tz) * c010.x) +
-                     (tx * (1-ty) * (1-tz) * c100.x) +
-                     (tx * (1-ty) * tz * c101.x) +
-                     ((1-tx) * ty * tz * c011.x) +
-                     (tx * ty * (1-tz) * c110.x) +
-                     (tx * ty * tz * c111.x);
+        extForce.x = ((1-alphaX) * (1-alphaY) * (1-alphaZ) * c000.x) +
+                     ((1-alphaX) * (1-alphaY) * alphaZ * c001.x) +
+                     ((1-alphaX) * alphaY * (1-alphaZ) * c010.x) +
+                     ((1-alphaX) * alphaY * alphaZ * c011.x) +
+                     (alphaX * (1-alphaY) * (1-alphaZ) * c100.x) +
+                     (alphaX * (1-alphaY) * alphaZ * c101.x) +
+                     (alphaX * alphaY * (1-alphaZ) * c110.x) +
+                     (alphaX * alphaY * alphaZ * c111.x);
 
         // Calculate External Force on Y Position
-        extForce.y = ((1-tx) * (1-ty) * (1-tz) * c000.y) +
-                     ((1-tx) * (1-ty) * tz * c001.y) +
-                     ((1-tx) * ty * (1-tz) * c010.y) +
-                     (tx * (1-ty) * (1-tz) * c100.y) +
-                     (tx * (1-ty) * tz * c101.y) +
-                     ((1-tx) * ty * tz * c011.y) +
-                     (tx * ty * (1-tz) * c110.y) +
-                     (tx * ty * tz * c111.y);
+        extForce.y = ((1-alphaX) * (1-alphaY) * (1-alphaZ) * c000.y) +
+                     ((1-alphaX) * (1-alphaY) * alphaZ * c001.y) +
+                     ((1-alphaX) * alphaY * (1-alphaZ) * c010.y) +
+                     ((1-alphaX) * alphaY * alphaZ * c011.y) +
+                     (alphaX * (1-alphaY) * (1-alphaZ) * c100.y) +
+                     (alphaX * (1-alphaY) * alphaZ * c101.y) +
+                     (alphaX * alphaY * (1-alphaZ) * c110.y) +
+                     (alphaX * alphaY * alphaZ * c111.y);
 
         // Calculate External Force on Z Position
-        extForce.z = ((1-tx) * (1-ty) * (1-tz) * c000.z) +
-                     ((1-tx) * (1-ty) * tz * c001.z) +
-                     ((1-tx) * ty * (1-tz) * c010.x) +
-                     (tx * (1-ty) * (1-tz) * c100.z) +
-                     (tx * (1-ty) * tz * c101.z) +
-                     ((1-tx) * ty * tz * c011.z) +
-                     (tx * ty * (1-tz) * c110.z) +
-                     (tx * ty * tz * c111.z);
+        extForce.z = ((1-alphaX) * (1-alphaY) * (1-alphaZ) * c000.z) +
+                     ((1-alphaX) * (1-alphaY) * alphaZ * c001.z) +
+                     ((1-alphaX) * alphaY * (1-alphaZ) * c010.x) +
+                     ((1-alphaX) * alphaY * alphaZ * c011.z) +
+                     (alphaX * (1-alphaY) * (1-alphaZ) * c100.z) +
+                     (alphaX * (1-alphaY) * alphaZ * c101.z) +
+                     (alphaX * alphaY * (1-alphaZ) * c110.z) +
+                     (alphaX * alphaY * alphaZ * c111.z);
     }
 
     return extForce;
@@ -219,9 +240,6 @@ struct point processCollision(int i, int j, int k, struct world *jello)
     collisionForce.y = 0.0;
     collisionForce.z = 0.0;
 
-    // Initialize Rest Length (0 for a Collision Spring)
-    double restLength = 0.0;
-
     // Check Out of Bounds Case 1 (X Min)
     if(jello->p[i][j][k].x <= -2.0)
     {
@@ -236,8 +254,8 @@ struct point processCollision(int i, int j, int k, struct world *jello)
         pDIFFERENCE(jello->p[i][j][k], xMinBound, l);
 
         // Calculate Forces
-        point hookForce = calcHookForce(jello->p[i][j][k], jello->kCollision, l, restLength);        // Hook's Law
-        point dampForce = calcDampForce(jello->p[i][j][k], jello->dCollision, l, jello->v[i][j][k]); // Damping
+        point hookForce = calcHookForce(jello->p[i][j][k], jello->kCollision, l, COLLISION_REST_LENGTH); // Hook's Law
+        point dampForce = calcDampForce(jello->p[i][j][k], jello->dCollision, l, jello->v[i][j][k]);     // Damping
 
         // Accumulate Forces
         pSUM(collisionForce, hookForce, collisionForce);
@@ -258,8 +276,8 @@ struct point processCollision(int i, int j, int k, struct world *jello)
         pDIFFERENCE(jello->p[i][j][k], xMaxBound, l);
 
         // Calculate Forces
-        point hookForce = calcHookForce(jello->p[i][j][k], jello->kCollision, l, restLength);        // Hook's Law
-        point dampForce = calcDampForce(jello->p[i][j][k], jello->dCollision, l, jello->v[i][j][k]); // Damping
+        point hookForce = calcHookForce(jello->p[i][j][k], jello->kCollision, l, COLLISION_REST_LENGTH); // Hook's Law
+        point dampForce = calcDampForce(jello->p[i][j][k], jello->dCollision, l, jello->v[i][j][k]);     // Damping
 
         // Accumulate Forces
         pSUM(collisionForce, hookForce, collisionForce);
@@ -280,8 +298,8 @@ struct point processCollision(int i, int j, int k, struct world *jello)
         pDIFFERENCE(jello->p[i][j][k], yMinBound, l);
 
         // Calculate Forces
-        point hookForce = calcHookForce(jello->p[i][j][k], jello->kCollision, l, restLength);        // Hook's Law
-        point dampForce = calcDampForce(jello->p[i][j][k], jello->dCollision, l, jello->v[i][j][k]); // Damping
+        point hookForce = calcHookForce(jello->p[i][j][k], jello->kCollision, l, COLLISION_REST_LENGTH); // Hook's Law
+        point dampForce = calcDampForce(jello->p[i][j][k], jello->dCollision, l, jello->v[i][j][k]);     // Damping
 
         // Accumulate Forces
         pSUM(collisionForce, hookForce, collisionForce);
@@ -302,8 +320,8 @@ struct point processCollision(int i, int j, int k, struct world *jello)
         pDIFFERENCE(jello->p[i][j][k], yMaxBound, l);
 
         // Calculate Forces
-        point hookForce = calcHookForce(jello->p[i][j][k], jello->kCollision, l, restLength);        // Hook's Law
-        point dampForce = calcDampForce(jello->p[i][j][k], jello->dCollision, l, jello->v[i][j][k]); // Damping
+        point hookForce = calcHookForce(jello->p[i][j][k], jello->kCollision, l, COLLISION_REST_LENGTH); // Hook's Law
+        point dampForce = calcDampForce(jello->p[i][j][k], jello->dCollision, l, jello->v[i][j][k]);     // Damping
 
         // Accumulate Forces
         pSUM(collisionForce, hookForce, collisionForce);
@@ -324,8 +342,8 @@ struct point processCollision(int i, int j, int k, struct world *jello)
         pDIFFERENCE(jello->p[i][j][k], zMinBound, l);
 
         // Calculate Forces
-        point hookForce = calcHookForce(jello->p[i][j][k], jello->kCollision, l, restLength);        // Hook's Law
-        point dampForce = calcDampForce(jello->p[i][j][k], jello->dCollision, l, jello->v[i][j][k]); // Damping
+        point hookForce = calcHookForce(jello->p[i][j][k], jello->kCollision, l, COLLISION_REST_LENGTH); // Hook's Law
+        point dampForce = calcDampForce(jello->p[i][j][k], jello->dCollision, l, jello->v[i][j][k]);     // Damping
 
         // Accumulate Forces
         pSUM(collisionForce, hookForce, collisionForce);
@@ -346,8 +364,8 @@ struct point processCollision(int i, int j, int k, struct world *jello)
         pDIFFERENCE(jello->p[i][j][k], zMaxBound, l);
 
         // Calculate Forces
-        point hookForce = calcHookForce(jello->p[i][j][k], jello->kCollision, l, restLength);        // Hook's Law
-        point dampForce = calcDampForce(jello->p[i][j][k], jello->dCollision, l, jello->v[i][j][k]); // Damping
+        point hookForce = calcHookForce(jello->p[i][j][k], jello->kCollision, l, COLLISION_REST_LENGTH); // Hook's Law
+        point dampForce = calcDampForce(jello->p[i][j][k], jello->dCollision, l, jello->v[i][j][k]);     // Damping
 
         // Accumulate Forces
         pSUM(collisionForce, hookForce, collisionForce);
@@ -367,9 +385,6 @@ struct point processStructSprings(int i, int j, int k, struct world *jello)
     structForce.x = 0.0;
     structForce.y = 0.0;
     structForce.z = 0.0;
-
-    // Initialize Rest Length
-    double restLength = 1.0/7.0;
 
     // Initialize Neighbor Array
     std::vector<particle> neighbors;
@@ -455,8 +470,8 @@ struct point processStructSprings(int i, int j, int k, struct world *jello)
         pDIFFERENCE(jello->v[i][j][k], neighbor->velocity, vDiff);
 
         // Calculate Forces
-        point hookForce = calcHookForce(jello->p[i][j][k], jello->kElastic, l, restLength); // Hook's Law
-        point dampForce = calcDampForce(jello->p[i][j][k], jello->dElastic, l, vDiff);      // Damping
+        point hookForce = calcHookForce(jello->p[i][j][k], jello->kElastic, l, STRUCT_REST_LENGTH); // Hook's Law
+        point dampForce = calcDampForce(jello->p[i][j][k], jello->dElastic, l, vDiff);              // Damping
 
         // Accumulate Forces
         pSUM(structForce, hookForce, structForce);
@@ -477,10 +492,6 @@ struct point processShearSprings(int i, int j, int k, struct world *jello)
     shearForce.x = 0.0;
     shearForce.y = 0.0;
     shearForce.z = 0.0;
-
-    // Initialize Rest Lengths
-    double mainRestLength = (1.0/7.0) * (sqrt(3));
-    double sideRestLength = (1.0/7.0) * (sqrt(2));
 
     // Initialize Neighbor Arrays
     std::vector<particle> sideNeighbors;
@@ -724,8 +735,8 @@ struct point processShearSprings(int i, int j, int k, struct world *jello)
         pDIFFERENCE(jello->v[i][j][k], sideNeighbor->velocity, vDiff);
 
         // Calculate Forces
-        point hookForce = calcHookForce(jello->p[i][j][k], jello->kElastic, l, sideRestLength); // Hook's Law
-        point dampForce = calcDampForce(jello->p[i][j][k], jello->dElastic, l, vDiff);          // Damping
+        point hookForce = calcHookForce(jello->p[i][j][k], jello->kElastic, l, SHEAR_SIDE_REST_LENGTH); // Hook's Law
+        point dampForce = calcDampForce(jello->p[i][j][k], jello->dElastic, l, vDiff);                  // Damping
 
         // Accumulate Forces
         pSUM(shearForce, hookForce, shearForce);
@@ -744,8 +755,8 @@ struct point processShearSprings(int i, int j, int k, struct world *jello)
         pDIFFERENCE(jello->v[i][j][k], mainNeighbor->velocity, vDiff);
 
         // Calculate Forces
-        point hookForce = calcHookForce(jello->p[i][j][k], jello->kElastic, l, mainRestLength); // Hook's Law
-        point dampForce = calcDampForce(jello->p[i][j][k], jello->dElastic, l, vDiff);          // Damping
+        point hookForce = calcHookForce(jello->p[i][j][k], jello->kElastic, l, SHEAR_MAIN_REST_LENGTH); // Hook's Law
+        point dampForce = calcDampForce(jello->p[i][j][k], jello->dElastic, l, vDiff);                  // Damping
 
         // Accumulate Forces
         pSUM(shearForce, hookForce, shearForce);
@@ -766,9 +777,6 @@ struct point processBendSprings(int i, int j, int k, struct world *jello)
     bendForce.x = 0.0;
     bendForce.y = 0.0;
     bendForce.z = 0.0;
-
-    // Initialize Rest Length
-    double restLength = (2.0/7.0);
 
     // Initialize Neighbor Array
     std::vector<particle> neighbors;
@@ -854,8 +862,8 @@ struct point processBendSprings(int i, int j, int k, struct world *jello)
         pDIFFERENCE(jello->v[i][j][k], neighbor->velocity, vDiff);
 
         // Calculate Forces
-        point hookForce = calcHookForce(jello->p[i][j][k], jello->kElastic, l, restLength); // Hook's Law
-        point dampForce = calcDampForce(jello->p[i][j][k], jello->dElastic, l, vDiff);      // Damping
+        point hookForce = calcHookForce(jello->p[i][j][k], jello->kElastic, l, BEND_REST_LENGTH); // Hook's Law
+        point dampForce = calcDampForce(jello->p[i][j][k], jello->dElastic, l, vDiff);            // Damping
 
         // Accumulate Forces
         pSUM(bendForce, hookForce, bendForce);
@@ -908,16 +916,21 @@ void computeAcceleration(struct world *jello, struct point a[8][8][8])
                 point bendForce = processBendSprings(i,j,k,jello);
 
                 // Process External Forces (Force Field)
-                //point extForce = calcExternalForce(i,j,k,jello);
+                point extForce = calcExternalForce(i,j,k,jello);
 
                 // Accumulate Forces
                 pSUM(totalForce, structForce, totalForce);
                 pSUM(totalForce, shearForce, totalForce);
                 pSUM(totalForce, bendForce, totalForce);
-                //pSUM(totalForce, extForce, totalForce);
+                pSUM(totalForce, extForce, totalForce);
+
+                // Initialize the Acceleration
+                point acceleration;
+                acceleration.x = 0.0;
+                acceleration.y = 0.0;
+                acceleration.z = 0.0;
 
                 // Get the Acceleration
-                point acceleration;
                 pMULTIPLY(totalForce, (1/m), acceleration);
                 a[i][j][k] = acceleration;
             }
@@ -965,7 +978,7 @@ void Euler(struct world *jello)
  * RK4 - Performs one step of RK4 Integration
  *       as a result, updates the jello structure
  */
-void RK4(struct world * jello)
+void RK4(struct world *jello)
 {
     point F1p[8][8][8], F1v[8][8][8],
           F2p[8][8][8], F2v[8][8][8],

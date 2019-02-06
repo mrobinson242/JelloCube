@@ -52,8 +52,8 @@ void init()
     glLoadIdentity();
     gluPerspective(90.0,1.0,0.01,1000.0);
 
-    // Set background color to grey
-    glClearColor(0.5, 0.5, 0.5, 0.0);
+    // Set background color to Dark Gray
+    glClearColor(0.2, 0.2, 0.2, 0.0);
 
     // Disable Drawing of BackFace of Polygon
     glCullFace(GL_BACK);
@@ -121,47 +121,50 @@ void display()
     /****************************/
     /********* Lighting *********/
     /****************************/
-    // You are encouraged to change lighting parameters or
-    // make improvements/modifications to the lighting model.
-    // This way, you will personalize your assignment and your
-    // assignment will stick out.
-
 
     // global ambient light
     GLfloat aGa[] = { 0.0, 0.0, 0.0, 0.0 };
 
     // light 's ambient, diffuse, specular
+    // Light 0
     GLfloat lKa0[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat lKd0[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat lKs0[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat lKd0[] = { 0.0, 1.0, 1.0, 1.0 };
+    GLfloat lKs0[] = { 0.0, 1.0, 1.0, 1.0 };
 
+    // Light 1
     GLfloat lKa1[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat lKd1[] = { 1.0, 0.0, 0.0, 1.0 };
-    GLfloat lKs1[] = { 1.0, 0.0, 0.0, 1.0 };
+    GLfloat lKd1[] = { 1.0, 1.0, 0.0, 1.0 };
+    GLfloat lKs1[] = { 1.0, 1.0, 0.0, 1.0 };
 
+    // Light 2
     GLfloat lKa2[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat lKd2[] = { 1.0, 1.0, 0.0, 1.0 };
-    GLfloat lKs2[] = { 1.0, 1.0, 0.0, 1.0 };
+    GLfloat lKd2[] = { 0.0, 1.0, 1.0, 1.0 };
+    GLfloat lKs2[] = { 0.0, 1.0, 1.0, 1.0 };
 
+    // Light 3
     GLfloat lKa3[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat lKd3[] = { 0.0, 1.0, 1.0, 1.0 };
-    GLfloat lKs3[] = { 0.0, 1.0, 1.0, 1.0 };
+    GLfloat lKd3[] = { 1.0, 1.0, 0.0, 1.0 };
+    GLfloat lKs3[] = { 1.0, 1.0, 0.0, 1.0 };
 
+    // Light 4
     GLfloat lKa4[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat lKd4[] = { 0.0, 0.0, 1.0, 1.0 };
-    GLfloat lKs4[] = { 0.0, 0.0, 1.0, 1.0 };
+    GLfloat lKd4[] = { 0.0, 1.0, 1.0, 1.0 };
+    GLfloat lKs4[] = { 0.0, 1.0, 1.0, 1.0 };
 
+    // Light 5
     GLfloat lKa5[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat lKd5[] = { 1.0, 0.0, 1.0, 1.0 };
-    GLfloat lKs5[] = { 1.0, 0.0, 1.0, 1.0 };
+    GLfloat lKd5[] = { 1.0, 1.0, 0.0, 1.0 };
+    GLfloat lKs5[] = { 1.0, 1.0, 0.0, 1.0 };
 
+    // Light 6
     GLfloat lKa6[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat lKd6[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat lKs6[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat lKd6[] = { 0.0, 1.0, 1.0, 1.0 };
+    GLfloat lKs6[] = { 0.0, 1.0, 1.0, 1.0 };
 
+    // Light 7
     GLfloat lKa7[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat lKd7[] = { 0.0, 1.0, 1.0, 1.0 };
-    GLfloat lKs7[] = { 0.0, 1.0, 1.0, 1.0 };
+    GLfloat lKd7[] = { 1.0, 1.0, 0.0, 1.0 };
+    GLfloat lKs7[] = { 1.0, 1.0, 0.0, 1.0 };
 
     // light positions and directions
     GLfloat lP0[] = { -1.999, -1.999, -1.999, 1.0 };
@@ -174,7 +177,6 @@ void display()
     GLfloat lP7[] = { -1.999, 1.999, 1.999, 1.0 };
 
     // jelly material color
-
     GLfloat mKa[] = { 0.0, 0.0, 0.0, 1.0 };
     GLfloat mKd[] = { 0.3, 0.3, 0.3, 1.0 };
     GLfloat mKs[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -242,7 +244,7 @@ void idle()
     if (saveScreenToFile == 1)
     {
         saveScreenshot(_windowWidth, _windowHeight, s);
-        saveScreenToFile=0; // save only once, change this if you want continuos image generation (i.e. animation)
+        //saveScreenToFile=0; // save only once, change this if you want continuos image generation (i.e. animation)
         sprite++;
     }
 
@@ -253,6 +255,7 @@ void idle()
         exit(0);
     }
 
+    // Check if the Code is not Paused
     if (pause == 0)
     {
         // Get Integrator
@@ -268,7 +271,7 @@ void idle()
             // Peform Euler Integration
             Euler(&jello);
         }
-        // Check if Integrator is RK$
+        // Check if Integrator is RK4
         else if(integrator.compare(rk4) == 0)
         {
             // Perform Runge-Katta 4 Integration

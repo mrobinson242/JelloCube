@@ -87,7 +87,7 @@ void showCube(struct world * jello)
                         continue;
 
                     glBegin(GL_POINTS); // draw point
-                    glColor4f(0,0,0,0);
+                    glColor4f(0.8,0.8,0.8,1.0);
                     glVertex3f(jello->p[i][j][k].x,jello->p[i][j][k].y,jello->p[i][j][k].z);
                     glEnd();
 
@@ -234,7 +234,7 @@ void showBoundingBox()
 {
     int i,j;
 
-    glColor4f(1.0,1.0,1.0,0);
+    glColor4f(0.8,0.8,0.8,0);
 
     glBegin(GL_LINES);
 
