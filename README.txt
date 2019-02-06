@@ -50,11 +50,8 @@ found in Hospitals
 ================================================================
 
 ====================== Compiling ===============================
-> unzip JelloCube.zip
-> cd pic
-> make
-> cd ..
-> cd assign2
+> unzip JelloCube.zip in Desktop
+> cd ~/Desktop/JelloCube
 > make
 > ./jello world/<World File>
 ================================================================
